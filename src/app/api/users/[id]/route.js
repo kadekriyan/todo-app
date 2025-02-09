@@ -3,7 +3,7 @@ import { db } from "@/db/index";
 import { users, addresses as address } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function PUT(req) {
+export async function PUT(req, { params }) {
   try {
     const { id } = params;
     const {

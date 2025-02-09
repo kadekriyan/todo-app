@@ -180,49 +180,77 @@ export default function UserList() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Input
-              placeholder="Enter First Name"
-              value={firstname}
-              onChange={(e) => setFirstname(e.target.value)}
-              className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <Input
-              placeholder="Enter Last Name"
-              value={lastname}
-              onChange={(e) => setLastname(e.target.value)}
-              className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <Input
-              placeholder="Select Birthdate"
-              type="date"
-              value={birthdate}
-              onChange={(e) => setBirthdate(e.target.value)}
-              className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <Input
-              placeholder="Enter Street Address"
-              value={street}
-              onChange={(e) => setStreet(e.target.value)}
-              className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <Input
-              placeholder="Enter City"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <Input
-              placeholder="Enter Province"
-              value={province}
-              onChange={(e) => setProvince(e.target.value)}
-              className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <Input
-              placeholder="Enter Postal Code"
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
-              className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                First Name
+              </label>
+              <Input
+                placeholder="First Name"
+                value={firstname}
+                onChange={(e) => setFirstname(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Last Name
+              </label>
+              <Input
+                placeholder="Last Name"
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Birthdate
+              </label>
+              <Input
+                placeholder="Birthdate"
+                type="date"
+                value={birthdate}
+                onChange={(e) => setBirthdate(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Street
+              </label>
+              <Input
+                placeholder="Street"
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                City
+              </label>
+              <Input
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Province
+              </label>
+              <Input
+                placeholder="Province"
+                value={province}
+                onChange={(e) => setProvince(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Postal Code
+              </label>
+              <Input
+                placeholder="Postal Code"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+              />
+            </div>
           </div>
           <DialogFooter className="mt-6 flex justify-end space-x-4">
             <Button

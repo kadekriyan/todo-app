@@ -1,0 +1,13 @@
+{
+  "schema": "./src/db/schema.js",
+  "out": "./src/db/migrations",
+  "dialect": "mysql",
+  "dbCredentials": {
+    "url": "mysql://root:@localhost:3306/todo",
+    "host": "localhost",
+    "port": "3306",
+    "user": "",
+    "password": "no",
+    "database": "todo"
+  }
+}

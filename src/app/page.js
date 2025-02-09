@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div>
       <h2>This is home page</h2>
-      <Link href="/todo">Go to another page </Link>
+      <Link href="/dashboard/">Go to another page </Link>
     </div>
   );
 }

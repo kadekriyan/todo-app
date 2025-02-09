@@ -51,3 +51,34 @@ export async function PUT(req, { params }) {
     );
   }
 }
+
+export async function DELETE(req, { params }) {
+  try {
+    const userId = params.id; // Ambil user ID dari parameter URL
+
+    // Pastikan userId ada
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Hapus address yang terkait dengan user
+    await db.delete(address).where(eq(address.user_id, userId));
+
+    // Hapus user dari tabel users
+    await db.delete(users).where(eq(users.id, userId));
+
+    return NextResponse.json(
+      { message: "User and associated address deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return NextResponse.json(
+      { error: "Failed to delete user" },
+      { status: 500 }
+    );
+  }
+}

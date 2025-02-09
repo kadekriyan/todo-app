@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, bigint } from "drizzle-orm/mysql-core";
+import { mysqlTable, int, varchar, boolean } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement(), // Gunakan INT dengan AUTO_INCREMENT
@@ -18,4 +18,13 @@ export const addresses = mysqlTable("addresses", {
   city: varchar("city", { length: 255 }).notNull(),
   province: varchar("province", { length: 255 }).notNull(),
   postal_code: varchar("postal_code", { length: 20 }).notNull(),
+});
+
+export const todos = mysqlTable("todos", {
+  id: int("id").primaryKey(),
+  user_id: int("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  completed: boolean("completed").default(false),
 });

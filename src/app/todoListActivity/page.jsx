@@ -46,7 +46,6 @@ export default function TodoList() {
         { ...newTodo, id: newTodo.id || crypto.randomUUID() },
       ]);
       setNewTask("");
-      fetchTodos();
     } catch (error) {
       console.error("Failed to add task:", error);
     }

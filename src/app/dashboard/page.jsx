@@ -16,18 +16,19 @@ export default function TodoList() {
   const [newTask, setNewTask] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const fetchTodos = async () => {
+    try {
+      const response = await fetch("/api/todos");
+      const data = await response.json();
+      setTodos(data);
+    } catch (error) {
+      console.error("Failed to fetch todos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTodos = async () => {
-      try {
-        const response = await fetch("/api/todos");
-        const data = await response.json();
-        setTodos(data);
-      } catch (error) {
-        console.error("Failed to fetch todos:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTodos();
   }, []);
 
@@ -45,6 +46,7 @@ export default function TodoList() {
         { ...newTodo, id: newTodo.id || crypto.randomUUID() },
       ]);
       setNewTask("");
+      fetchTodos();
     } catch (error) {
       console.error("Failed to add task:", error);
     }
@@ -64,6 +66,7 @@ export default function TodoList() {
           t.id === id ? { ...t, completed: updatedTodo.completed } : t
         )
       );
+      fetchTodos();
     } catch (error) {
       console.error("Failed to toggle task completion:", error);
     }

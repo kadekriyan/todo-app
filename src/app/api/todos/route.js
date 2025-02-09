@@ -45,36 +45,3 @@ export async function POST(req) {
     );
   }
 }
-
-export async function PUT(req) {
-  try {
-    const { id, title, completed } = await req.json();
-    if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
-    }
-
-    await db.update(todos).set({ title, completed }).where(eq(todos.id, id));
-    return NextResponse.json({ message: "Todo updated" }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update todo" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(req) {
-  try {
-    const { id } = await req.json();
-    if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
-    }
-    await db.delete(todos).where(eq(todos.id, id));
-    return NextResponse.json({ message: "Todo Deleted" }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to delete todo" },
-      { status: 500 }
-    );
-  }
-}

@@ -1,94 +1,89 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Trash2, Check } from "lucide-react";
 
-export default function Dashboard() {
-  const [tasks, setTasks] = useState([]);
-  const [task, setTask] = useState("");
+export default function TodoList() {
+  const [todos, setTodos] = useState([]);
+  const [title, setTitle] = useState("");
 
   useEffect(() => {
-    fetch("/api/todos")
-      .then((res) => res.json())
-      .then((data) => setTasks(data));
+    fetchTodos();
   }, []);
 
-  const addTask = async () => {
-    if (task.trim() !== "") {
-      const response = await fetch("/api/todos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: task }),
-      });
-      if (response.ok) {
-        setTask("");
-        fetch("/api/todos")
-          .then((res) => res.json())
-          .then((data) => setTasks(data));
-      }
-    }
-  };
+  async function fetchTodos() {
+    const res = await fetch("/api/todos");
+    const data = await res.json();
+    setTodos(data);
+  }
 
-  const deleteTask = async (id) => {
+  async function addTodo() {
+    if (!title.trim()) return;
+    await fetch("/api/todos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title }),
+    });
+    setTitle("");
+    fetchTodos();
+  }
+
+  async function deleteTodo(id) {
     await fetch(`/api/todos/${id}`, { method: "DELETE" });
-    setTasks(tasks.filter((task) => task.id !== id));
-  };
+    fetchTodos();
+  }
+
+  async function toggleComplete(id, completed) {
+    await fetch(`/api/todos/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed: !completed }),
+    });
+    fetchTodos();
+  }
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center text-xl font-bold">
-            Dashboard
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2 mb-4">
-            <Input
-              value={task}
-              onChange={(e) => setTask(e.target.value)}
-              placeholder="Tambahkan tugas..."
-              className="flex-1"
-            />
-            <Button onClick={addTask} className="bg-blue-500 hover:bg-blue-600">
-              <Plus className="w-5 h-5" />
-            </Button>
-          </div>
-          <div className="space-y-2">
-            {tasks.length > 0 ? (
-              tasks.map((t) => (
-                <Card
-                  key={t.id}
-                  className="flex justify-between items-center p-3 border border-gray-200 rounded-lg shadow-md"
-                >
-                  <span className="text-gray-800 font-medium">{t.text}</span>
-                  <div className="flex gap-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="border-gray-400 hover:border-gray-600"
-                    >
-                      <Edit className="w-4 h-4 text-gray-600" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      onClick={() => deleteTask(t.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </Card>
-              ))
-            ) : (
-              <p className="text-center text-gray-500">Belum ada tugas</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="max-w-md mx-auto mt-10 p-4 space-y-4">
+      <div className="flex space-x-2">
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Add a new task"
+        />
+        <Button onClick={addTodo}>Add</Button>
+      </div>
+      <div className="space-y-2">
+        {todos.map((todo) => (
+          <Card key={todo.id} className="flex items-center justify-between p-2">
+            <CardContent
+              className={`flex-1 ${
+                todo.completed ? "line-through text-gray-500" : ""
+              }`}
+            >
+              {todo.title}
+            </CardContent>
+            <div className="flex space-x-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => toggleComplete(todo.id, todo.completed)}
+              >
+                <Check className="w-5 h-5 text-green-500" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => deleteTodo(todo.id)}
+              >
+                <Trash2 className="w-5 h-5 text-red-500" />
+              </Button>
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

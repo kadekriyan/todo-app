@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db/index";
 import { todos } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET() {
   try {
@@ -19,10 +20,17 @@ export async function POST(req) {
   try {
     const { title } = await req.json();
 
+    const data = {
+      id: uuidv4(),
+      title: title,
+      user_id: "1255f977-e713-11ef-9613-00919e474b0d",
+      completed: 0,
+    };
+
     if (!title) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
-    const result = await db.insert(todos).values({ title }).execute();
+    const result = await db.insert(todos).values(data).execute();
 
     return NextResponse.json(
       { message: "Todo created", result },

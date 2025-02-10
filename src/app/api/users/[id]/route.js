@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 export async function PUT(req, { params }) {
   try {
-    const { id } = params;
+    const { id: id } = await params;
     const {
       firstname,
       lastname,
@@ -49,7 +49,7 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const userId = params.id;
+    const { id: userId } = await params;
 
     if (!userId) {
       return NextResponse.json(

@@ -1,7 +1,4 @@
-import Footer from "@/components/footer";
-import Header from "@/components/header";
-
-import "@/app/globals.css"; // Sesuaikan path dengan proyek Anda
+import "@/app/globals.css";
 
 export const metadata = {
   title: "Home page",
@@ -12,9 +9,7 @@ export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        {/* <Header /> */}
         <div>{children}</div>
-        {/* <Footer /> */}
       </body>
     </html>
   );

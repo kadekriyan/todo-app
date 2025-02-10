@@ -41,7 +41,6 @@ export async function POST(req) {
       address: userAddress,
     } = await req.json();
 
-    // Validate required data
     if (!firstname || !lastname || !birthdate || !userAddress) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -49,16 +48,12 @@ export async function POST(req) {
       );
     }
 
-    // Destructure address details
     const { street, city, province, postal_code } = userAddress;
 
-    // Generate unique IDs for user and address
     const userId = uuidv4();
     const addressId = uuidv4();
 
-    // Start the transaction for user and address creation
     await db.transaction(async (tx) => {
-      // Insert into the users table
       await tx.insert(users).values({
         id: userId,
         firstname,
@@ -66,7 +61,6 @@ export async function POST(req) {
         birthdate,
       });
 
-      // Insert into the address table
       await tx.insert(address).values({
         id: addressId,
         user_id: userId,
@@ -100,7 +94,6 @@ export async function PUT(req) {
       address: userAddress,
     } = await req.json();
 
-    // Validate the required data
     if (!id || !firstname || !lastname || !birthdate || !userAddress) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -108,18 +101,14 @@ export async function PUT(req) {
       );
     }
 
-    // Destructure address details
     const { street, city, province, postal_code } = userAddress;
 
-    // Start the transaction for user and address updates
     await db.transaction(async (tx) => {
-      // Update user details
       await tx
         .update(users)
         .set({ firstname, lastname, birthdate })
         .where(eq(users.id, id));
 
-      // Update address details
       await tx
         .update(address)
         .set({ street, city, province, postal_code })

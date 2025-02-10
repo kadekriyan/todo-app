@@ -18,7 +18,7 @@ export const addresses = mysqlTable(
   "addresses",
   {
     id: varchar("id", { length: 36 }).primaryKey(),
-    user_id: varchar("user_id", { length: 36 }) // Sesuaikan dengan tipe ID pada tabel users
+    user_id: varchar("user_id", { length: 36 })
       .notNull()
       .references(() => users.id, {
         onDelete: "cascade",
@@ -29,23 +29,6 @@ export const addresses = mysqlTable(
     postal_code: varchar("postal_code", { length: 20 }).notNull(),
   },
   (table) => ({
-    userIdIndex: ["user_id"], // Definisikan index pada user_id
-  })
-);
-
-export const todos = mysqlTable(
-  "todos",
-  {
-    id: varchar("id", { length: 36 }).primaryKey(),
-    user_id: varchar("user_id", { length: 36 }) // Sesuaikan dengan tipe ID pada tabel users
-      .notNull()
-      .references(() => users.id, {
-        onDelete: "cascade",
-      }),
-    title: varchar("title", { length: 255 }).notNull(),
-    completed: boolean("completed").default(false),
-  },
-  (table) => ({
-    userIdIndex: ["user_id"], // Definisikan index pada user_id
+    userIdIndex: ["user_id"],
   })
 );

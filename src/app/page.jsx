@@ -54,7 +54,6 @@ export default function UserList() {
       setLastname(user.lastname || "");
       setBirthdate(user.birthdate || "");
 
-      // Validasi address
       const userAddress = user.address || {};
       setStreet(userAddress.street || "");
       setCity(userAddress.city || "");

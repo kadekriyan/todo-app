@@ -13,7 +13,6 @@ export async function PUT(req, { params }) {
       address: userAddress,
     } = await req.json();
 
-    // Validate the required data
     if (!id || !firstname || !lastname || !birthdate || !userAddress) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -21,18 +20,14 @@ export async function PUT(req, { params }) {
       );
     }
 
-    // Destructure address details
     const { street, city, province, postal_code } = userAddress;
 
-    // Start the transaction for user and address updates
     await db.transaction(async (tx) => {
-      // Update user details
       await tx
         .update(users)
         .set({ firstname, lastname, birthdate })
         .where(eq(users.id, id));
 
-      // Update address details
       await tx
         .update(address)
         .set({ street, city, province, postal_code })
@@ -54,9 +49,8 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const userId = params.id; // Ambil user ID dari parameter URL
+    const userId = params.id;
 
-    // Pastikan userId ada
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required" },
@@ -64,10 +58,7 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    // Hapus address yang terkait dengan user
     await db.delete(address).where(eq(address.user_id, userId));
-
-    // Hapus user dari tabel users
     await db.delete(users).where(eq(users.id, userId));
 
     return NextResponse.json(

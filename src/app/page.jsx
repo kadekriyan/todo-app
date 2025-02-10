@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -16,9 +17,36 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Check, Trash, Pencil } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import { Trash, Pencil } from "lucide-react";
+
+const userSchema = z.object({
+  firstname: z.string().min(1, "First name is required"),
+  lastname: z.string().min(1, "Last name is required"),
+  birthdate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+  address: z.object({
+    street: z.string().min(1, "Street is required"),
+    city: z.string().min(1, "City is required"),
+    province: z.string().min(1, "Province is required"),
+    postal_code: z.string().min(1, "Postal code is required"),
+  }),
+});
 
 export default function UserList() {
+  const [alertOpen, setAlertOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -30,6 +58,8 @@ export default function UserList() {
   const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
   const [postalCode, setPostalCode] = useState("");
+  const [errors, setErrors] = useState({});
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const fetchUsers = async () => {
     try {
@@ -68,15 +98,48 @@ export default function UserList() {
       setProvince("");
       setPostalCode("");
     }
+    setErrors({});
     setModalOpen(true);
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setEditingUser(null);
+    setErrors({});
+  };
+
+  const validateInputs = () => {
+    try {
+      userSchema.parse({
+        firstname,
+        lastname,
+        birthdate,
+        address: { street, city, province, postal_code: postalCode },
+      });
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors = err.flatten().fieldErrors;
+        const addressErrors = fieldErrors["address"] || {};
+        setErrors({
+          firstname: fieldErrors.firstname?.[0],
+          lastname: fieldErrors.lastname?.[0],
+          birthdate: fieldErrors.birthdate?.[0],
+          address: {
+            street: addressErrors.street?.[0],
+            city: addressErrors.city?.[0],
+            province: addressErrors.province?.[0],
+            postal_code: addressErrors.postal_code?.[0],
+          },
+        });
+      }
+      return false;
+    }
   };
 
   const saveUser = async () => {
+    if (!validateInputs()) return;
     const userData = {
       firstname,
       lastname,
@@ -111,12 +174,21 @@ export default function UserList() {
     }
   };
 
+  const confirmDeleteUser = (id) => {
+    setUserToDelete(id);
+    setAlertOpen(true);
+  };
+
   const deleteUser = async (id) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+    if (!userToDelete) return;
 
     try {
-      await fetch(`/api/users/${id}`, { method: "DELETE" });
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+      await fetch(`/api/users/${userToDelete}`, { method: "DELETE" });
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== userToDelete)
+      );
+      setAlertOpen(false);
+      setUserToDelete(null);
     } catch (error) {
       console.error("Failed to delete user:", error);
     }
@@ -159,7 +231,7 @@ export default function UserList() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => deleteUser(user.id)}
+                      onClick={() => confirmDeleteUser(user.id)}
                     >
                       <Trash className="h-5 w-5 text-red-600" />
                     </Button>
@@ -170,6 +242,25 @@ export default function UserList() {
           )}
         </CardContent>
       </Card>
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent className="p-6 rounded-lg shadow-lg bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              user and their data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setAlertOpen(false)}>
+              Cancel
+            </Button>
+            <Button className="bg-red-500 text-white" onClick={deleteUser}>
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="p-6 rounded-lg shadow-lg bg-white">
@@ -188,6 +279,9 @@ export default function UserList() {
                 value={firstname}
                 onChange={(e) => setFirstname(e.target.value)}
               />
+              {errors.firstname && (
+                <p className="text-sm text-red-600">{errors.firstname}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -198,6 +292,9 @@ export default function UserList() {
                 value={lastname}
                 onChange={(e) => setLastname(e.target.value)}
               />
+              {errors.lastname && (
+                <p className="text-sm text-red-600">{errors.lastname}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -209,6 +306,9 @@ export default function UserList() {
                 value={birthdate}
                 onChange={(e) => setBirthdate(e.target.value)}
               />
+              {errors.birthdate && (
+                <p className="text-sm text-red-600">{errors.birthdate}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -219,6 +319,9 @@ export default function UserList() {
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
               />
+              {errors.address?.street && (
+                <p className="text-sm text-red-600">{errors.address.street}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -229,6 +332,9 @@ export default function UserList() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
               />
+              {errors.address?.city && (
+                <p className="text-sm text-red-600">{errors.address.city}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -239,6 +345,11 @@ export default function UserList() {
                 value={province}
                 onChange={(e) => setProvince(e.target.value)}
               />
+              {errors.address?.province && (
+                <p className="text-sm text-red-600">
+                  {errors.address.province}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -249,6 +360,11 @@ export default function UserList() {
                 value={postalCode}
                 onChange={(e) => setPostalCode(e.target.value)}
               />
+              {errors.address?.postal_code && (
+                <p className="text-sm text-red-600">
+                  {errors.address.postal_code}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter className="mt-6 flex justify-end space-x-4">
